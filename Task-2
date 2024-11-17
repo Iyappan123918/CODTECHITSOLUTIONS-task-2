@@ -1,0 +1,55 @@
+import socket
+import requests
+import platform
+
+def scan_ports(target, ports):
+    open_ports = []
+    for port in ports:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(1)  # Set a timeout of 1 second
+            if s.connect_ex((target, port)) == 0:
+                open_ports.append(port)
+    return open_ports
+
+def check_http_headers(url):
+    try:
+        response = requests.get(url)
+        headers = response.headers
+        return headers
+    except requests.RequestException as e:
+        print(f"Error checking {url}: {e}")
+        return None
+
+def check_software_version():
+    os_version = platform.platform()
+    print(f"Operating System: {os_version}")
+    # Add more checks for specific software versions if needed
+
+def main():
+    target = input("Enter the target IP or domain: ")
+    
+    # Define ports to scan
+    ports_to_scan = [22, 80, 443, 3306, 8080]  # Add more as needed
+    print(f"Scanning {target} for open ports...")
+    
+    open_ports = scan_ports(target, ports_to_scan)
+    if open_ports:
+        print(f"Open ports: {open_ports}")
+    else:
+        print("No open ports found.")
+    
+    # Check for common HTTP headers
+    http_url = f"http://{target}"
+    print(f"Checking HTTP headers for {http_url}...")
+    headers = check_http_headers(http_url)
+    if headers:
+        print("HTTP Headers:")
+        for header, value in headers.items():
+            print(f"{header}: {value}")
+
+    # Check software versions
+    print("Checking software versions...")
+    check_software_version()
+
+if _name_ == "_main_":
+    main()
